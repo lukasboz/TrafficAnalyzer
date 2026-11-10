@@ -1,0 +1,18 @@
+services:
+  analysis:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      FLOWSTATE_API_KEY: ${FLOWSTATE_API_KEY:?Set a long random FLOWSTATE_API_KEY}
+      FLOWSTATE_DATA: /data
+    volumes:
+      - traffic-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+volumes:
+  traffic-data:

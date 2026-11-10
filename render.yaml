@@ -1,0 +1,21 @@
+# Always-on vision worker + scheduler. Review the paid plan/disk in Render before creating.
+services:
+  - type: web
+    name: flowstate-analysis
+    runtime: docker
+    plan: 1c-2g
+    region: virginia
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    disk:
+      name: flowstate-data
+      mountPath: /data
+      sizeGB: 5
+    envVars:
+      - key: FLOWSTATE_DATA
+        value: /data
+      - key: FLOWSTATE_API_KEY
+        generateValue: true
+      - key: FLOWSTATE_REQUIRE_API_KEY
+        value: "1"

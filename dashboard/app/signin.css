@@ -1,0 +1,13 @@
+.signin-shell{min-height:100vh;display:grid;place-items:center;padding:32px;background:var(--dark);position:relative;overflow:hidden}
+.signin-card{width:min(100%,460px);background:var(--bg);border-radius:18px;padding:42px;position:relative;z-index:1;box-shadow:0 24px 80px #0003}
+.signin-brand{font-size:32px;font-weight:750;letter-spacing:-1.5px;margin-bottom:40px}.signin-brand span{color:#75a834}
+.signin-card .eyebrow{font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:12px}
+.signin-card h1{font-size:30px;line-height:1.2;letter-spacing:-1px;margin-bottom:15px}
+.signin-card>p{font-size:14px;line-height:1.7;color:var(--muted);margin-bottom:26px}
+.signin-form{display:grid;gap:12px}.signin-form label{font-size:13px;font-weight:600}
+.signin-input{display:flex;align-items:center;gap:10px;padding:0 14px;background:white;border:1px solid var(--border);border-radius:8px;color:var(--muted)}
+.signin-input input{height:48px;min-width:0;width:100%;border:0;background:transparent;color:var(--text);outline:none}
+.signin-input:focus-within{outline:2px solid #8fbb51}.signin-form .button{margin-top:10px;justify-content:center;min-height:48px}
+.signin-note{border-top:1px solid var(--border);padding-top:20px;margin-top:30px;font-size:12px;color:var(--muted)}
+.signin-decoration{position:absolute;inset:0;transform:rotate(-35deg);pointer-events:none}.signin-decoration span{position:absolute;width:180%;height:1px;background:#b8ed6920;top:20%;left:-30%}.signin-decoration span:nth-child(2){top:40%}.signin-decoration span:nth-child(3){top:60%}.signin-decoration span:nth-child(4){top:80%}
+@media(max-width:500px){.signin-shell{padding:20px}.signin-card{padding:30px 25px}.signin-card h1{font-size:27px}}

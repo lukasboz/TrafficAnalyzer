@@ -1,10 +1,11 @@
 # Flowstate — Traffic observatory
 
-A working web app for measuring traffic from public cameras. Next.js provides the Vercel-ready dashboard; a FastAPI service runs YOLOX Tiny with ONNX Runtime, tracks vehicles, stores observations in SQLite, and dispatches timezone-aware scheduled jobs.
+A web app for measuring traffic from public cameras. 
+Built with Next.js and FastAPI running YOLOX Tiny w/ ONNX Runtime.
 
 ## Run on Windows
 
-Requires Python 3.12 and Node 22.13+ (Node 24 LTS recommended). Live HLS analysis also needs `ffmpeg` on PATH; the Docker image installs it.
+Requires Python 3.12 and Node 22.13+ (Node 24 LTS recommended). Live HLS analysis also needs `ffmpeg` on PATH; the provided Docker image installs it.
 
 ```powershell
 .\scripts\start.ps1
@@ -73,43 +74,6 @@ The tracker uses class-aware Hungarian matching with overlap and centroid distan
 Identical clips successfully analyzed within the last 24 hours are skipped. Unchanged snapshots within an observation are excluded from further samples. Source `Last-Modified` age is shown where available; it is a provider timestamp, not proof of the image's capture time. An analyzed frame is stored per observation, so images can include incidental people or plates without identification.
 
 Each run captures its camera configuration at creation. Changing the line or analysis area does not reinterpret earlier results. Historical detection views use the captured configuration.
-
-## Scheduling and persistence
-
-The service has one dispatcher and two analysis workers. SQLite WAL transactions and a partial unique index prevent concurrent jobs for one camera. The queue, samples, results, saved cameras, configurations, and schedules persist under `data/`; image frames and the cached model are also there. No product records rely on browser storage.
-
-Jobs run once per selected day, using IANA timezone rules. The dispatcher checks every 15 seconds and permits a ten-minute catch-up window. Nonexistent spring DST times are skipped; repeated autumn times run once. A restart marks interrupted jobs failed instead of leaving them stuck. Keep the machine and service running for unattended observations. Multiple Uvicorn workers or multiple service instances sharing one database are unsupported.
-
-Reports group by each camera's local hour. Comparing several timezones does not compare simultaneous UTC observations. Report/export queries include up to the most recent 1,000 observations in the selected period; the report displays a limit notice.
-
-## Deploy to Vercel
-
-Use the [deployment guide](DEPLOYMENT.md). The website uses standard Next.js with Vercel Root Directory `dashboard`. The Python analysis service has an included Render Blueprint and Dockerfile for permanent HTTPS hosting with a persistent disk.
-
-Set Vercel's server-only `ANALYSIS_URL`, `ANALYSIS_KEY`, and `DASHBOARD_PASSWORD`. The API proxy keeps the backend key private. Production sign-in replaces the previous hosting gateway. Backend connection errors explain missing configuration, rejected keys, timeouts, and unreachable services separately.
-
-The prior temporary tunnel expired; it is no longer used. The existing local service, camera records, observations, and schedules remain intact. No cloud resources have been created by this migration.
-
-The local launcher creates ignored `dashboard/.env.local`, starts Next.js, and checks the authenticated backend connection before reporting ready. If a `.next/BUILD_ID` exists it starts the production build; use `scripts/start.ps1 -Development` for live development. After rebuilding, use `scripts/use-built-dashboard.ps1` to restart only the dashboard.
-
-Public media fetches allow only HTTP/HTTPS on ports 80/443, reject non-global DNS addresses and embedded credentials, revalidate redirects, and bound download sizes and durations. HLS playlists rewrite every media/key URL to authenticated, camera-scoped signed resources; every fetch still validates the destination. Video decoders only receive local files, and ffmpeg recording disables network protocols. MJPEG connections renew after 45 seconds in the browser and stop consuming bandwidth in hidden tabs. The production container requires a long service key on all routes except `/health`, initializes its persistent data volume, then drops root privileges. Run one backend instance for the SQLite database and scheduler.
-
-For a local Docker backend, set `FLOWSTATE_API_KEY` in a root `.env` file and run `docker compose up --build -d`. Point the dashboard at that same key and local API origin. See `.env.example` and `dashboard/.env.example`.
-
-## Development and validation
-
-```powershell
-.venv\Scripts\python -m pytest -q
-cd dashboard
-npx tsc --noEmit
-npx playwright install chromium
-npx playwright test
-npm run build
-```
-
-Backend tests cover tracking crossings/directions, finite line segments, lost tracks, occupancy unions, input validation, private-source rejection, timezone/DST scheduling, queue concurrency, captured configuration, restart recovery, and clip deduplication. Browser checks cover actual camera analysis, persistent schedule creation/pause/deletion, reports/CSV, mobile layout, and recoverable camera form validation. Browser tests use the running local app and public sources; they create and remove a named validation schedule and retain real camera observations.
-
-Real London MP4 clips and a Finland JPEG were analyzed during validation. A Tower Bridge observation produced a tracked line crossing and a computed flow rate. Detection accuracy has not been benchmarked against manually labeled ground truth. Browser WebMCP tools are feature-detected for camera search and starting analysis; native WebMCP validation was unavailable in the test browser.
 
 ## Source references
 
